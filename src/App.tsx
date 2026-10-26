@@ -12,13 +12,41 @@ const info = [
 export default function App(){
  const [page,setPage]=useState(0),[menu,setMenu]=useState(false),[playing,setPlaying]=useState(false),[toasts,setToasts]=useState(0),[share,setShare]=useState('Поделиться')
  const audio=useRef<HTMLAudioElement>(null); const touch=useRef({x:0,y:0})
- function navigate(n:number){if(n<0||n>5)return;setPage(n);setMenu(false);window.scrollTo({top:0,behavior:'instant'})}
+ function navigate(n:number){
+  if(n<0||n>5)return
+  setPage(n)
+  setMenu(false)
+  window.scrollTo({top:0,behavior:'instant'})
+  if(audio.current&&audio.current.paused){
+    audio.current.volume=.4
+    audio.current.play().then(()=>setPlaying(true)).catch(()=>{})
+  }
+ }
+ useEffect(()=>{
+  const playAudio=()=>{
+    if(audio.current&&audio.current.paused){
+      audio.current.volume=.4
+      audio.current.play().then(()=>setPlaying(true)).catch(()=>{
+        const onFirst=()=>{
+          if(audio.current&&audio.current.paused){
+            audio.current.volume=.4
+            audio.current.play().then(()=>setPlaying(true)).catch(()=>{})
+          }
+        }
+        window.addEventListener('click',onFirst,{once:true})
+        window.addEventListener('touchstart',onFirst,{once:true})
+        window.addEventListener('keydown',onFirst,{once:true})
+      })
+    }
+  }
+  playAudio()
+ },[])
  useEffect(()=>{const f=(e:KeyboardEvent)=>{if((e.target as HTMLElement).closest('input,textarea,select,[data-game]'))return;if(e.key==='ArrowRight')navigate(page+1);if(e.key==='ArrowLeft')navigate(page-1);if(e.key==='Escape')setMenu(false)};window.addEventListener('keydown',f);return()=>window.removeEventListener('keydown',f)},[page])
  async function music(){if(!audio.current)return;if(playing){audio.current.pause();setPlaying(false)}else{try{audio.current.volume=.4;await audio.current.play();setPlaying(true)}catch{setPlaying(false)}}}
  function toast(){setToasts(n=>n+1);if(!matchMedia('(prefers-reduced-motion: reduce)').matches)confetti({particleCount:100,spread:85,colors:['#ba9a60','#e8d6b1','#ffffff'],origin:{y:.65}})}
  async function sharing(){try{await navigator.clipboard.writeText(location.href);setShare('Ссылка скопирована')}catch{setShare('Ссылка: '+location.href)}}
  return <div className="magazine-app">
- <audio ref={audio} src="./audio/usovik-theme.mp3" loop preload="none"/>
+ <audio ref={audio} src="./audio/usovik-theme.mp3" loop preload="auto" autoPlay/>
  <header className="site-header"><button className="wordmark" onClick={()=>navigate(0)} aria-label="На обложку">USOVIK<span>THE SPECIAL ISSUE</span></button><div className="header-edition">ЛИЧНОСТЬ. ХАРАКТЕР. СТИЛЬ.<span>27 ОКТЯБРЯ · ОФК</span></div><div className="header-actions"><button className={'icon-button '+(playing?'playing':'')} onClick={music} aria-label={playing?'Выключить музыку':'Включить музыку'}>{playing?<Volume2 size={17}/>:<VolumeX size={17}/>}</button><button className="contents-button" onClick={()=>setMenu(!menu)} aria-expanded={menu} aria-label="Содержание">{menu?<X size={18}/>:<Menu size={18}/>}<span>Содержание</span></button></div></header>
  {menu&&<nav className="contents"><div className="contents-label">В ЭТОМ НОМЕРЕ</div>{pages.map((p,i)=><button key={p} onClick={()=>navigate(i)} aria-current={i===page?'page':undefined}><span>0{i+1}</span>{p}<ArrowRight size={18}/></button>)}</nav>}
  <main onTouchStart={e=>{if((e.target as HTMLElement).closest('[data-game]'))return;touch.current={x:e.touches[0].clientX,y:e.touches[0].clientY}}} onTouchEnd={e=>{if((e.target as HTMLElement).closest('[data-game]'))return;const dx=touch.current.x-e.changedTouches[0].clientX,dy=touch.current.y-e.changedTouches[0].clientY;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5)navigate(page+(dx>0?1:-1))}}>
