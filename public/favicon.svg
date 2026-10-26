@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5D77F"/>
+      <stop offset="50%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#8F6C1E"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0A0D0F"/>
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="url(#gold)" stroke-width="1.5" stroke-opacity="0.6"/>
+  <polygon points="32,8 52,18 52,42 32,56 12,42 12,18" fill="none" stroke="url(#gold)" stroke-width="2"/>
+  <text x="32" y="39" font-family="'Cinzel', serif, Georgia" font-size="24" font-weight="700" fill="url(#gold)" text-anchor="middle">У</text>
+</svg>
